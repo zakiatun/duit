@@ -34,8 +34,8 @@
                 </div>
             </div>
             <div class="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span class="text-xs font-semibold text-slate-600">Mode Mandiri (In-Memory)</span>
+                <span id="sync-status-indicator" class="w-2 h-2 rounded-full bg-amber-500"></span>
+                <span id="sync-status-text" class="text-xs font-semibold text-slate-600">Menghubungkan...</span>
             </div>
         </div>
     </header>
@@ -104,7 +104,7 @@
                         </h4>
                     </div>
                     <div class="space-y-3" id="kewajiban-list-container">
-                        <!-- Rendered by JS -->
+                        <div class="text-slate-400 text-xs text-center py-4">Memuat kewajiban...</div>
                     </div>
                 </div>
 
@@ -112,7 +112,7 @@
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                     <h4 class="font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100">Evaluasi Rencana Mingguan</h4>
                     <div class="space-y-4" id="budget-progress-container">
-                        <!-- Progress mingguan dinamis -->
+                        <div class="text-slate-400 text-xs text-center py-4">Memuat anggaran...</div>
                     </div>
                     <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-xs text-slate-500">
                         <span>Total Anggaran Harian Terpakai:</span>
@@ -178,7 +178,7 @@
 
                     <!-- List container -->
                     <div class="flex-grow overflow-y-auto max-h-[400px] space-y-3" id="expense-history-container">
-                        <!-- Rendered by JS -->
+                        <div class="text-slate-400 text-xs text-center py-8">Memuat riwayat pengeluaran...</div>
                     </div>
                 </div>
 
@@ -191,7 +191,7 @@
     <!-- Footer -->
     <footer class="bg-white border-t border-slate-200 mt-12 py-6">
         <div class="max-w-5xl mx-auto px-4 text-center text-xs text-slate-400 space-y-2">
-            <p>Sistem ini beroperasi di memori peramban Anda secara mandiri.</p>
+            <p>Sistem ini terintegrasi dengan penyimpanan database cloud otomatis.</p>
             <p>© 2026 Rencana Anggaran Mandiri Juli. Terstruktur, Rapi & Hemat.</p>
         </div>
     </footer>
@@ -206,11 +206,16 @@
         <span id="alert-message" class="text-sm font-medium">Pengeluaran berhasil disimpan.</span>
     </div>
 
-    <script>
+    <!-- Firebase SDK Modules -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
         // State Awal Sesuai Sisa Kas Saat ini Rp 2.848.000
         const KAS_AWAL = 2848000;
 
-        // Data Kewajiban Utama
+        // Data Kewajiban Utama Default
         let obligations = [
             { id: 'kosan', name: 'Bayar Kosan', amount: 200000, paid: false },
             { id: 'kuota', name: 'Beli Kuota', amount: 150000, paid: false },
@@ -230,6 +235,16 @@
             { name: 'Dana Cadangan Darurat', limit: 138000, isReserve: true }
         ];
 
+        // Memuat Konfigurasi Firebase dari Environment
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        let user = null;
+        let isDataLoaded = false;
+
         // Format Rupiah Helper
         function formatRupiah(num) {
             return new Intl.NumberFormat('id-ID', {
@@ -243,12 +258,10 @@
         // Set default date input ke hari ini di bulan Juli 2026
         function setTodayDate() {
             const today = new Date();
-            // Maksa default ke Juli 2026 jika di luar rentang, agar selaras dengan skenario
-            const year = today.getFullYear() === 2026 ? 2026 : 2026;
+            const year = today.getFullYear();
             const month = String(today.getMonth() + 1).padStart(2, '0');
             const day = String(today.getDate()).padStart(2, '0');
             
-            // Atur default input tanggal
             document.getElementById('input-date').value = `2026-07-${day}`;
         }
 
@@ -283,7 +296,22 @@
             }, 3000);
         }
 
-        // Hitung & Render Keuangan
+        // Sinkronisasi Menyimpan Data ke Cloud Database
+        async function saveToCloud() {
+            if (!user) return;
+            const userDocRef = doc(db, 'artifacts', appId, 'users', user.uid, 'data', 'state');
+            try {
+                document.getElementById('sync-status-text').textContent = "Menyimpan...";
+                await setDoc(userDocRef, { obligations, expenses });
+                document.getElementById('sync-status-text').textContent = "Tersinkronisasi";
+            } catch (error) {
+                console.error("Gagal menyimpan ke Firestore:", error);
+                document.getElementById('sync-status-text').textContent = "Gagal Sinkronisasi";
+                showNotification("Gagal menyimpan perubahan ke cloud.", "error");
+            }
+        }
+
+        // Hitung & Render Keuangan ke Halaman
         function calculateAndRender() {
             // Hitung Kewajiban yang Belum Dibayar
             const totalUnpaidObligations = obligations
@@ -298,8 +326,7 @@
             // Hitung Pengeluaran Harian
             const totalDailyExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
 
-            // Perhitungan Kas saat ini
-            // Angka 2.848.000 adalah Kas Di Tangan. Sisa uang akan dikurangi oleh pengeluaran yang ditandai lunas dan pengeluaran harian.
+            // Sisa Kas di Tangan saat ini
             const sisaKasDiTangan = KAS_AWAL - totalPaidObligations - totalDailyExpenses;
             
             // Sisa Bersih Riil = Kas saat ini - Kewajiban Belum Dibayar
@@ -311,7 +338,7 @@
             document.getElementById('dom-sisa-bersih').textContent = formatRupiah(sisaBersihRiil);
             document.getElementById('dom-total-terpakai-harian').textContent = formatRupiah(totalDailyExpenses);
 
-            // Atur gaya Sisa Bersih Riil agar memperingatkan pengguna jika sisa kritis
+            // Perubahan warna latar berdasarkan kondisi sisa saldo bersih riil
             const sisaBersihContainer = document.getElementById('dom-sisa-bersih').parentElement;
             if (sisaBersihRiil < 200000) {
                 sisaBersihContainer.className = "bg-rose-900 p-6 rounded-2xl border border-rose-950 shadow-md text-white flex flex-col justify-between relative overflow-hidden transition-all duration-350";
@@ -363,6 +390,7 @@
 
         // Toggle Status Kewajiban (Sudah/Belum Dibayar)
         function toggleObligation(id) {
+            if (!isDataLoaded) return;
             const index = obligations.findIndex(o => o.id === id);
             if (index !== -1) {
                 obligations[index].paid = !obligations[index].paid;
@@ -370,6 +398,7 @@
                 const statusStr = obligations[index].paid ? 'sudah dibayar' : 'batal bayar';
                 showNotification(`${namaKewajiban} berhasil ditandai ${statusStr}.`);
                 calculateAndRender();
+                saveToCloud();
             }
         }
 
@@ -378,15 +407,12 @@
             const container = document.getElementById('budget-progress-container');
             container.innerHTML = '';
 
-            // Distribusikan pengeluaran ke tiap minggu berdasarkan tanggal
             const distribution = weeklyBudgets.map(b => ({ ...b, spent: 0 }));
             
             expenses.forEach(e => {
                 const dateObj = new Date(e.date);
                 const day = dateObj.getDate();
-                const month = dateObj.getMonth(); // 0-indexed (6 untuk Juli)
 
-                // Pastikan berada pada rentang bulan Juli
                 let assigned = false;
                 for (let i = 0; i < distribution.length; i++) {
                     const b = distribution[i];
@@ -396,7 +422,6 @@
                         break;
                     }
                 }
-                // Jika tidak masuk ke minggu 1-4, masukkan ke cadangan darurat
                 if (!assigned) {
                     distribution[4].spent += e.amount;
                 }
@@ -459,7 +484,6 @@
                 const item = document.createElement('div');
                 item.className = "flex items-center justify-between p-3.5 bg-slate-50 border border-slate-100 rounded-xl hover:border-slate-200 transition duration-150";
 
-                // Map ikon berdasarkan kategori
                 let iconSvg = '';
                 switch (e.category) {
                     case 'makan':
@@ -472,7 +496,6 @@
                         iconSvg = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />`;
                 }
 
-                // Format tanggal lokal Indonesia
                 const localDate = new Date(e.date).toLocaleDateString('id-ID', {
                     day: 'numeric',
                     month: 'short',
@@ -511,6 +534,11 @@
         document.getElementById('expense-form').addEventListener('submit', function(event) {
             event.preventDefault();
 
+            if (!isDataLoaded) {
+                showNotification('Sedang mensinkronisasi database cloud, harap tunggu.', 'error');
+                return;
+            }
+
             const date = document.getElementById('input-date').value;
             const amount = parseInt(document.getElementById('input-amount').value);
             const category = document.getElementById('input-category').value;
@@ -532,25 +560,77 @@
             expenses.push(newExpense);
             showNotification('Pengeluaran berhasil dicatat!');
             
-            // Reset input deskripsi & nominal saja agar tidak repot input tanggal berkali-kali
             document.getElementById('input-amount').value = '';
             document.getElementById('input-description').value = '';
             
             calculateAndRender();
+            saveToCloud();
         });
 
         // Hapus Pengeluaran
         function deleteExpense(id) {
+            if (!isDataLoaded) return;
             expenses = expenses.filter(e => e.id !== id);
             showNotification('Pengeluaran berhasil dihapus.', 'success');
             calculateAndRender();
+            saveToCloud();
         }
 
-        // Jalankan saat load pertama kali
-        window.onload = function() {
-            setTodayDate();
-            calculateAndRender();
+        // Inisialisasi Otentikasi Pengguna & Penyelaras Database Cloud
+        const initAuth = async () => {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Gagal autentikasi ke database cloud:", error);
+                document.getElementById('sync-status-text').textContent = "Akses Cloud Gagal";
+                document.getElementById('sync-status-indicator').className = "w-2 h-2 rounded-full bg-rose-500";
+                showNotification("Gagal terhubung ke jaringan cloud.", "error");
+            }
         };
+
+        // Mengatur listener perubahan state autentikasi untuk memuat data dari Firestore secara real-time
+        onAuthStateChanged(auth, (currentUser) => {
+            user = currentUser;
+            if (user) {
+                document.getElementById('sync-status-indicator').className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+                document.getElementById('sync-status-text').textContent = "Tersambung ke Cloud";
+                
+                // Mendapatkan referensi dokumen cloud unik untuk akun anonim browser ini
+                const userDocRef = doc(db, 'artifacts', appId, 'users', user.uid, 'data', 'state');
+                
+                // Sinkronisasi real-time
+                onSnapshot(userDocRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        obligations = data.obligations || obligations;
+                        expenses = data.expenses || [];
+                    } else {
+                        // Jika akun baru, lakukan inisialisasi awal di database cloud
+                        setDoc(userDocRef, { obligations, expenses });
+                    }
+                    isDataLoaded = true;
+                    calculateAndRender();
+                }, (error) => {
+                    console.error("Gagal sinkronisasi data cloud:", error);
+                    showNotification("Gagal memuat pembaharuan dari cloud.", "error");
+                });
+            } else {
+                document.getElementById('sync-status-indicator').className = "w-2 h-2 rounded-full bg-amber-500 animate-ping";
+                document.getElementById('sync-status-text').textContent = "Menghubungkan...";
+            }
+        });
+
+        // Daftarkan fungsi ke objek window agar dapat dipanggil dari element HTML inline
+        window.toggleObligation = toggleObligation;
+        window.deleteExpense = deleteExpense;
+
+        // Eksekusi segera pada saat modul dimuat
+        setTodayDate();
+        initAuth();
     </script>
 </body>
 </html>
