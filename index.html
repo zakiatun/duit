@@ -1,1 +1,556 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pencatat Keuangan Juli</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen">
 
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-600 text-white p-2 rounded-xl">
+                    <!-- Wallet Icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-slate-900">Catatan Keuangan</h1>
+                    <p class="text-xs text-slate-500">Bulan Juli • Target Pelunasan & Pengeluaran Harian</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="text-xs font-semibold text-slate-600">Mode Mandiri (In-Memory)</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 py-6 space-y-6">
+
+        <!-- Grid Dashboard Utama -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- Card 1: Kas Utama -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 text-slate-100 opacity-50">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="z-10">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Kas Saat Ini</p>
+                    <h3 class="text-3xl font-bold text-slate-900 mt-1" id="dom-total-kas">Rp 2.848.000</h3>
+                    <p class="text-xs text-slate-500 mt-2">Modal awal sebelum membayar sisa kewajiban harian.</p>
+                </div>
+            </div>
+
+            <!-- Card 2: Kewajiban Tertunda -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 text-amber-50 opacity-10">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                <div class="z-10">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-amber-600">Kewajiban Belum Dibayar</p>
+                    <h3 class="text-3xl font-bold text-amber-600 mt-1" id="dom-total-kewajiban">Rp 950.000</h3>
+                    <p class="text-xs text-slate-500 mt-2">Kosan, kuota internet, jatah Bapak & Kakak.</p>
+                </div>
+            </div>
+
+            <!-- Card 3: Sisa Bersih Riil -->
+            <div class="bg-indigo-900 p-6 rounded-2xl border border-indigo-950 shadow-md text-white flex flex-col justify-between relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 text-indigo-850 opacity-20">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="z-10">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-indigo-200">Sisa Bersih Riil (Uang Makan)</p>
+                    <h3 class="text-3xl font-bold text-white mt-1" id="dom-sisa-bersih">Rp 1.898.000</h3>
+                    <p class="text-xs text-indigo-200 mt-2">Dana aman untuk makan & hidup sampai 1 Agustus.</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Tengah: Kewajiban & Input Pengeluaran -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+            
+            <!-- Kolom Kiri: Kewajiban & Budget (5 Kolom) -->
+            <div class="md:col-span-5 space-y-6">
+                
+                <!-- Daftar Kewajiban -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
+                        <h4 class="font-bold text-slate-900 flex items-center gap-2">
+                            <span>Kewajiban Wajib</span>
+                            <span class="text-xs font-normal text-slate-500">(Centang jika sudah bayar)</span>
+                        </h4>
+                    </div>
+                    <div class="space-y-3" id="kewajiban-list-container">
+                        <!-- Rendered by JS -->
+                    </div>
+                </div>
+
+                <!-- Indikator Anggaran Mingguan -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <h4 class="font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100">Evaluasi Rencana Mingguan</h4>
+                    <div class="space-y-4" id="budget-progress-container">
+                        <!-- Progress mingguan dinamis -->
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-xs text-slate-500">
+                        <span>Total Anggaran Harian Terpakai:</span>
+                        <span class="font-semibold text-slate-700" id="dom-total-terpakai-harian">Rp 0</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Kolom Kanan: Catat Pengeluaran Harian & Riwayat (7 Kolom) -->
+            <div class="md:col-span-7 space-y-6">
+                
+                <!-- Form Input Pengeluaran -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <h4 class="font-bold text-slate-900 mb-4">Catat Pengeluaran Baru</h4>
+                    
+                    <form id="expense-form" class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Tanggal</label>
+                                <input type="date" id="input-date" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Jumlah (Rupiah)</label>
+                                <input type="number" id="input-amount" required placeholder="Contoh: 35000" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Kategori</label>
+                                <select id="input-category" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm bg-white">
+                                    <option value="makan">Makan & Minum</option>
+                                    <option value="transport">Transportasi</option>
+                                    <option value="belanja">Belanja Bulanan / Keperluan Kos</option>
+                                    <option value="darurat">Keadaan Darurat / Obat</option>
+                                    <option value="lainnya">Lain-lain</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Keterangan / Detail</label>
+                                <input type="text" id="input-description" placeholder="Contoh: Nasi padang siang & malam" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end pt-2">
+                            <button type="submit" class="w-full sm:w-auto px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm rounded-xl transition duration-150 flex items-center justify-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                Tambah Pengeluaran
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Daftar Pengeluaran Harian -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col min-h-[350px]">
+                    <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
+                        <h4 class="font-bold text-slate-900">Riwayat Pengeluaran Juli</h4>
+                        <span class="text-xs text-indigo-600 font-semibold bg-indigo-50 px-2 py-1 rounded" id="history-count">0 Pengeluaran</span>
+                    </div>
+
+                    <!-- List container -->
+                    <div class="flex-grow overflow-y-auto max-h-[400px] space-y-3" id="expense-history-container">
+                        <!-- Rendered by JS -->
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-12 py-6">
+        <div class="max-w-5xl mx-auto px-4 text-center text-xs text-slate-400 space-y-2">
+            <p>Sistem ini beroperasi di memori peramban Anda secara mandiri.</p>
+            <p>© 2026 Rencana Anggaran Mandiri Juli. Terstruktur, Rapi & Hemat.</p>
+        </div>
+    </footer>
+
+    <!-- Custom Dialog / Notification System -->
+    <div id="custom-alert" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl transform translate-y-20 opacity-0 transition duration-300 z-50 flex items-center gap-3 border border-slate-800">
+        <span id="alert-icon" class="text-emerald-400">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </span>
+        <span id="alert-message" class="text-sm font-medium">Pengeluaran berhasil disimpan.</span>
+    </div>
+
+    <script>
+        // State Awal Sesuai Sisa Kas Saat ini Rp 2.848.000
+        const KAS_AWAL = 2848000;
+
+        // Data Kewajiban Utama
+        let obligations = [
+            { id: 'kosan', name: 'Bayar Kosan', amount: 200000, paid: false },
+            { id: 'kuota', name: 'Beli Kuota', amount: 150000, paid: false },
+            { id: 'bapak', name: 'Kasih Bapak', amount: 200000, paid: false },
+            { id: 'kakak', name: 'Kasih Kakak', amount: 400000, paid: false }
+        ];
+
+        // Pengeluaran Harian
+        let expenses = [];
+
+        // Anggaran Mingguan Juli (Sesuai Laporan Keuangan)
+        const weeklyBudgets = [
+            { name: 'Minggu 1 (1–7 Juli)', limit: 420000, startDay: 1, endDay: 7 },
+            { name: 'Minggu 2 (8–14 Juli)', limit: 420000, startDay: 8, endDay: 14 },
+            { name: 'Minggu 3 (15–21 Juli)', limit: 420000, startDay: 15, endDay: 21 },
+            { name: 'Minggu 4 & Sisa Hari', limit: 500000, startDay: 22, endDay: 31 },
+            { name: 'Dana Cadangan Darurat', limit: 138000, isReserve: true }
+        ];
+
+        // Format Rupiah Helper
+        function formatRupiah(num) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(num);
+        }
+
+        // Set default date input ke hari ini di bulan Juli 2026
+        function setTodayDate() {
+            const today = new Date();
+            // Maksa default ke Juli 2026 jika di luar rentang, agar selaras dengan skenario
+            const year = today.getFullYear() === 2026 ? 2026 : 2026;
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            
+            // Atur default input tanggal
+            document.getElementById('input-date').value = `2026-07-${day}`;
+        }
+
+        // Custom Toast Notification
+        function showNotification(message, type = 'success') {
+            const alertEl = document.getElementById('custom-alert');
+            const messageEl = document.getElementById('alert-message');
+            const iconEl = document.getElementById('alert-icon');
+
+            messageEl.textContent = message;
+
+            if (type === 'success') {
+                iconEl.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                `;
+            } else {
+                iconEl.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                `;
+            }
+
+            alertEl.classList.remove('translate-y-20', 'opacity-0');
+            alertEl.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                alertEl.classList.remove('translate-y-0', 'opacity-100');
+                alertEl.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // Hitung & Render Keuangan
+        function calculateAndRender() {
+            // Hitung Kewajiban yang Belum Dibayar
+            const totalUnpaidObligations = obligations
+                .filter(o => !o.paid)
+                .reduce((sum, o) => sum + o.amount, 0);
+
+            // Hitung Kewajiban yang Sudah Dibayar
+            const totalPaidObligations = obligations
+                .filter(o => o.paid)
+                .reduce((sum, o) => sum + o.amount, 0);
+
+            // Hitung Pengeluaran Harian
+            const totalDailyExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
+
+            // Perhitungan Kas saat ini
+            // Angka 2.848.000 adalah Kas Di Tangan. Sisa uang akan dikurangi oleh pengeluaran yang ditandai lunas dan pengeluaran harian.
+            const sisaKasDiTangan = KAS_AWAL - totalPaidObligations - totalDailyExpenses;
+            
+            // Sisa Bersih Riil = Kas saat ini - Kewajiban Belum Dibayar
+            const sisaBersihRiil = sisaKasDiTangan - totalUnpaidObligations;
+
+            // Render ke DOM utama
+            document.getElementById('dom-total-kas').textContent = formatRupiah(sisaKasDiTangan);
+            document.getElementById('dom-total-kewajiban').textContent = formatRupiah(totalUnpaidObligations);
+            document.getElementById('dom-sisa-bersih').textContent = formatRupiah(sisaBersihRiil);
+            document.getElementById('dom-total-terpakai-harian').textContent = formatRupiah(totalDailyExpenses);
+
+            // Atur gaya Sisa Bersih Riil agar memperingatkan pengguna jika sisa kritis
+            const sisaBersihContainer = document.getElementById('dom-sisa-bersih').parentElement;
+            if (sisaBersihRiil < 200000) {
+                sisaBersihContainer.className = "bg-rose-900 p-6 rounded-2xl border border-rose-950 shadow-md text-white flex flex-col justify-between relative overflow-hidden transition-all duration-350";
+            } else if (sisaBersihRiil < 500000) {
+                sisaBersihContainer.className = "bg-amber-900 p-6 rounded-2xl border border-amber-950 shadow-md text-white flex flex-col justify-between relative overflow-hidden transition-all duration-350";
+            } else {
+                sisaBersihContainer.className = "bg-indigo-900 p-6 rounded-2xl border border-indigo-950 shadow-md text-white flex flex-col justify-between relative overflow-hidden transition-all duration-350";
+            }
+
+            // Render Daftar Kewajiban
+            renderObligations();
+
+            // Render Progress Mingguan
+            renderWeeklyProgress(totalDailyExpenses);
+
+            // Render Riwayat
+            renderHistory();
+        }
+
+        // Render Panel Kewajiban
+        function renderObligations() {
+            const container = document.getElementById('kewajiban-list-container');
+            container.innerHTML = '';
+
+            obligations.forEach(o => {
+                const item = document.createElement('div');
+                item.className = `flex items-center justify-between p-3.5 rounded-xl border transition-all duration-150 ${
+                    o.paid 
+                        ? 'bg-slate-50 border-slate-100 text-slate-400 line-through' 
+                        : 'bg-white border-slate-200 text-slate-700 hover:border-indigo-300'
+                }`;
+
+                item.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <input type="checkbox" id="chk-${o.id}" ${o.paid ? 'checked' : ''} 
+                            class="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 cursor-pointer"
+                            onchange="toggleObligation('${o.id}')">
+                        <label for="chk-${o.id}" class="text-sm font-medium cursor-pointer flex-grow select-none">
+                            ${o.name}
+                        </label>
+                    </div>
+                    <span class="text-xs font-semibold ${o.paid ? 'text-slate-400' : 'text-slate-900'}">
+                        ${formatRupiah(o.amount)}
+                    </span>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // Toggle Status Kewajiban (Sudah/Belum Dibayar)
+        function toggleObligation(id) {
+            const index = obligations.findIndex(o => o.id === id);
+            if (index !== -1) {
+                obligations[index].paid = !obligations[index].paid;
+                const namaKewajiban = obligations[index].name;
+                const statusStr = obligations[index].paid ? 'sudah dibayar' : 'batal bayar';
+                showNotification(`${namaKewajiban} berhasil ditandai ${statusStr}.`);
+                calculateAndRender();
+            }
+        }
+
+        // Render Progress Mingguan Keuangan
+        function renderWeeklyProgress(totalDailyExpenses) {
+            const container = document.getElementById('budget-progress-container');
+            container.innerHTML = '';
+
+            // Distribusikan pengeluaran ke tiap minggu berdasarkan tanggal
+            const distribution = weeklyBudgets.map(b => ({ ...b, spent: 0 }));
+            
+            expenses.forEach(e => {
+                const dateObj = new Date(e.date);
+                const day = dateObj.getDate();
+                const month = dateObj.getMonth(); // 0-indexed (6 untuk Juli)
+
+                // Pastikan berada pada rentang bulan Juli
+                let assigned = false;
+                for (let i = 0; i < distribution.length; i++) {
+                    const b = distribution[i];
+                    if (!b.isReserve && day >= b.startDay && day <= b.endDay) {
+                        b.spent += e.amount;
+                        assigned = true;
+                        break;
+                    }
+                }
+                // Jika tidak masuk ke minggu 1-4, masukkan ke cadangan darurat
+                if (!assigned) {
+                    distribution[4].spent += e.amount;
+                }
+            });
+
+            distribution.forEach(b => {
+                const remaining = b.limit - b.spent;
+                const percentage = Math.min((b.spent / b.limit) * 100, 100);
+                
+                let barColor = 'bg-indigo-600';
+                let textColor = 'text-indigo-600';
+                if (percentage > 90) {
+                    barColor = 'bg-rose-600';
+                    textColor = 'text-rose-600';
+                } else if (percentage > 70) {
+                    barColor = 'bg-amber-500';
+                    textColor = 'text-amber-500';
+                }
+
+                const item = document.createElement('div');
+                item.className = "space-y-1.5";
+                item.innerHTML = `
+                    <div class="flex justify-between text-xs font-semibold">
+                        <span class="text-slate-700">${b.name}</span>
+                        <span class="${textColor}">${formatRupiah(b.spent)} / ${formatRupiah(b.limit)}</span>
+                    </div>
+                    <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                        <div class="h-full rounded-full ${barColor} transition-all duration-500" style="width: ${percentage}%"></div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // Render Riwayat Pengeluaran
+        function renderHistory() {
+            const container = document.getElementById('expense-history-container');
+            const countEl = document.getElementById('history-count');
+            
+            container.innerHTML = '';
+            countEl.textContent = `${expenses.length} Pengeluaran`;
+
+            if (expenses.length === 0) {
+                container.className = "flex-grow flex flex-col items-center justify-center text-slate-400 py-12";
+                container.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-slate-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                    </svg>
+                    <p class="text-sm">Belum ada catatan pengeluaran harian.</p>
+                `;
+                return;
+            }
+
+            container.className = "flex-grow overflow-y-auto max-h-[400px] space-y-3";
+
+            // Urutkan pengeluaran berdasarkan tanggal terbaru
+            const sortedExpenses = [...expenses].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            sortedExpenses.forEach(e => {
+                const item = document.createElement('div');
+                item.className = "flex items-center justify-between p-3.5 bg-slate-50 border border-slate-100 rounded-xl hover:border-slate-200 transition duration-150";
+
+                // Map ikon berdasarkan kategori
+                let iconSvg = '';
+                switch (e.category) {
+                    case 'makan':
+                        iconSvg = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-11.314l.707.707m12.728 12.728l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />`;
+                        break;
+                    case 'transport':
+                        iconSvg = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />`;
+                        break;
+                    default:
+                        iconSvg = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />`;
+                }
+
+                // Format tanggal lokal Indonesia
+                const localDate = new Date(e.date).toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                });
+
+                item.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="bg-indigo-50 text-indigo-600 p-2 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                ${iconSvg}
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm font-semibold text-slate-800">${e.description || 'Pengeluaran'}</span>
+                                <span class="text-[10px] bg-slate-200 text-slate-600 font-bold px-1.5 py-0.5 rounded uppercase">${e.category}</span>
+                            </div>
+                            <span class="text-xs text-slate-400">${localDate}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-sm font-bold text-slate-900">${formatRupiah(e.amount)}</span>
+                        <button onclick="deleteExpense('${e.id}')" class="text-slate-300 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition duration-150" title="Hapus">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // Tambah Pengeluaran Baru
+        document.getElementById('expense-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const date = document.getElementById('input-date').value;
+            const amount = parseInt(document.getElementById('input-amount').value);
+            const category = document.getElementById('input-category').value;
+            const description = document.getElementById('input-description').value.trim();
+
+            if (!date || isNaN(amount) || amount <= 0) {
+                showNotification('Harap masukkan data dengan benar.', 'error');
+                return;
+            }
+
+            const newExpense = {
+                id: crypto.randomUUID(),
+                date,
+                amount,
+                category,
+                description: description || `Kebutuhan ${category}`
+            };
+
+            expenses.push(newExpense);
+            showNotification('Pengeluaran berhasil dicatat!');
+            
+            // Reset input deskripsi & nominal saja agar tidak repot input tanggal berkali-kali
+            document.getElementById('input-amount').value = '';
+            document.getElementById('input-description').value = '';
+            
+            calculateAndRender();
+        });
+
+        // Hapus Pengeluaran
+        function deleteExpense(id) {
+            expenses = expenses.filter(e => e.id !== id);
+            showNotification('Pengeluaran berhasil dihapus.', 'success');
+            calculateAndRender();
+        }
+
+        // Jalankan saat load pertama kali
+        window.onload = function() {
+            setTodayDate();
+            calculateAndRender();
+        };
+    </script>
+</body>
+</html>
